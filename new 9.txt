@@ -1,0 +1,161 @@
+curl -i -X PUT \
+  -H "Content-Type: application/json" \
+  http://localhost:8083/connectors/ORDER-SOURCE-V1/config \
+  -d '{
+  "connector.class": "io.confluent.connect.jdbc.JdbcSourceConnector",
+  "timestamp.column.name": "CREATED_DATE",
+  "connection.password": "mapps",
+  "query": "SELECT CAST(ORDER_ID AS NUMBER(19,0)) AS ORDER_ID, ORDER_NUMBER, CAST(CUSTOMER_ID AS NUMBER(19,0)) AS CUSTOMER_ID, ORDER_STATUS, CAST(ORDER_AMOUNT AS NUMBER(12,2)) AS ORDER_AMOUNT, CAST(CREATED_BY AS VARCHAR2(50)) AS CREATED_BY, CAST(CREATED_DATE AS TIMESTAMP) AS CREATED_DATE, CAST(UPDATED_BY AS VARCHAR2(50)) AS UPDATED_BY, CAST(UPDATED_DATE AS TIMESTAMP) AS UPDATED_DATE FROM MAPPS.TEST_ORDER",
+  "timestamp.delay.interval.ms": "5000",
+  "mode": "timestamp",
+  "value.converter.schema.registry.url": "http://schema-registry:8081",
+  "topic.prefix": "ORDER_SOURCE_TOPIC-V1",
+  "connection.user": "mapps",
+  "poll.interval.ms": "2000",
+  "db.timezone": "Asia/Dhaka",
+  "name": "ORDER-SOURCE-V1",
+  "numeric.mapping": "best_fit",
+  "connection.url": "jdbc:oracle:thin:@192.168.0.102:1521/PROD",
+  "value.converter": "io.confluent.connect.avro.AvroConverter",
+  "key.converter": "io.confluent.connect.avro.AvroConverter",
+  "key.converter.schema.registry.url": "http://schema-registry:8081",
+  "quote.sql.identifiers": "ALWAYS"
+}'
+
+  
+  
+curl -i -X PUT \
+-H "Content-Type: application/json" \
+http://localhost:8083/connectors/ORDER-SINK-V1/config \
+-d '{
+"connector.class": "io.confluent.connect.jdbc.JdbcSinkConnector",
+"table.name.format": "MAPPS.TEST_ORDER",
+"behavior.on.null.values": "ignore",
+"connection.password": "MAPPS",
+"tasks.max": "1",
+"topics": "ORDER_SOURCE_TOPIC-V1",
+"batch.size": "3000",
+"max.retries": "10",
+"retry.backoff.ms": "3000",
+"delete.enabled": "false",
+"auto.evolve": "false",
+"connection.user": "MAPPS",
+"db.timezone": "Asia/Dhaka",
+"name": "ORDER-SINK-V1",
+"errors.tolerance": "all",
+"auto.create": "false",
+"connection.url": "jdbc:oracle:thin:@192.168.0.66:1521/PROD",
+"insert.mode": "upsert",
+"errors.log.enable": "true",
+"pk.mode": "record_value",
+"pk.fields": "ORDER_ID",
+"quote.sql.identifiers": "ALWAYS"
+}'
+
+
+
+
+curl -i -X PUT \
+  -H "Content-Type: application/json" \
+  http://localhost:8083/connectors/ORDER-PG-SOURCE-V1/config \
+  -d '{
+  "connector.class": "io.confluent.connect.jdbc.JdbcSourceConnector",
+  "timestamp.column.name": "CREATED_DATE",
+  "connection.password": "luffy24",
+  "query": "SELECT ORDER_ID::BIGINT AS ORDER_ID, ORDER_NUMBER AS ORDER_NUMBER, CUSTOMER_ID::BIGINT AS CUSTOMER_ID, ORDER_STATUS AS ORDER_STATUS, ORDER_AMOUNT::NUMERIC(12,2) AS ORDER_AMOUNT, CREATED_BY::VARCHAR(50) AS CREATED_BY, CREATED_DATE::TIMESTAMP AS CREATED_DATE, UPDATED_BY::VARCHAR(50) AS UPDATED_BY, UPDATED_DATE::TIMESTAMP AS UPDATED_DATE FROM PUBLIC.TEST_ORDER",
+  "timestamp.delay.interval.ms": "5000",
+  "mode": "timestamp",
+  "value.converter.schema.registry.url": "http://schema-registry:8081",
+  "topic.prefix": "ORDER_PG_SOURCE_TOPIC-V1",
+  "connection.user": "root",
+  "poll.interval.ms": "2000",
+  "db.timezone": "Asia/Dhaka",
+  "name": "ORDER-PG-SOURCE-V1",
+  "numeric.mapping": "best_fit",
+  "connection.url": "jdbc:postgresql://postgres:5432/postgres",
+  "value.converter": "io.confluent.connect.avro.AvroConverter",
+  "key.converter": "io.confluent.connect.avro.AvroConverter",
+  "key.converter.schema.registry.url": "http://schema-registry:8081",
+  "quote.sql.identifiers": "ALWAYS"
+}'
+
+
+
+
+curl -i -X PUT \
+-H "Content-Type: application/json" \
+http://localhost:8083/connectors/ORDER-PG-SINK-V1/config \
+-d '{
+"connector.class": "io.confluent.connect.jdbc.JdbcSinkConnector",
+"table.name.format": "MAPPS.TEST_ORDER",
+"behavior.on.null.values": "ignore",
+"connection.password": "MAPPS",
+"tasks.max": "1",
+"topics": "ORDER_PG_SOURCE_TOPIC-V1",
+"batch.size": "3000",
+"max.retries": "10",
+"retry.backoff.ms": "3000",
+"delete.enabled": "false",
+"auto.evolve": "false",
+"connection.user": "MAPPS",
+"db.timezone": "Asia/Dhaka",
+"name": "ORDER-PG-SINK-V1",
+"errors.tolerance": "all",
+"auto.create": "false",
+"connection.url": "jdbc:oracle:thin:@192.168.0.66:1521/PROD",
+"insert.mode": "upsert",
+"errors.log.enable": "true",
+"pk.mode": "record_value",
+"pk.fields": "order_id",
+"quote.sql.identifiers": "NEVER"
+}'
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+curl -i -X PUT \
+  -H "Content-Type: application/json" \
+  http://localhost:8083/connectors/ORDER-PG-SOURCE-V1/config \
+  -d '{
+  "connector.class": "io.debezium.connector.postgresql.PostgresConnector",
+  "publication.autocreate.mode": "filtered",
+  "database.user": "root",
+  "database.dbname": "postgres",
+  "slot.name": "order_source_v1_slot",
+  "time.precision.mode": "connect",
+  "schema.include.list": "public",
+  "database.port": "5432",
+  "plugin.name": "pgoutput",
+  "value.converter.schema.registry.url": "http://schema-registry:8081",
+  "topic.prefix": "ORDER_PG_SOURCE_TOPIC-V1",
+  "decimal.handling.mode": "precise",
+  "database.hostname": "postgres",
+  "database.password": "luffy24",
+  "name": "ORDER-PG-SOURCE-V1",
+  "table.include.list": "public.test_order",
+  "value.converter": "io.confluent.connect.avro.AvroConverter",
+  "key.converter": "io.confluent.connect.avro.AvroConverter",
+  "key.converter.schema.registry.url": "http://schema-registry:8081",
+  "snapshot.mode": "initial",
+  "key.converter.schemas.enable": "true",
+  "value.converter.schemas.enable": "true",
+  "value.converter.enhanced.avro.schema.support": "true",
+  "key.converter.enhanced.avro.schema.support": "true"
+}'

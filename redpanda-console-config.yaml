@@ -1,0 +1,50 @@
+#----------------------------------------------------------------------------
+# Kafka configuration
+#----------------------------------------------------------------------------
+kafka:
+  # Brokers is a list of bootstrap servers with ports.
+  brokers:
+    - "kafka1:9092"
+    - "kafka2:9092"
+    - "kafka3:9092"
+
+#----------------------------------------------------------------------------
+# Schema Registry configuration (top-level)
+#----------------------------------------------------------------------------
+schemaRegistry:
+  enabled: true
+  urls:
+    - "http://schema-registry:8081"
+  tls:
+    enabled: false
+
+#----------------------------------------------------------------------------
+# Kafka Connect configuration (optional)
+#----------------------------------------------------------------------------
+kafkaConnect:
+  enabled: true
+  connectTimeout: 15s
+  readTimeout: 60s
+  requestTimeout: 6s
+  clusters:
+    - name: kafka-connect
+      url: "http://kafka-connect:8083"
+      tls:
+        enabled: false
+#----------------------------------------------------------------------------
+# Server settings
+#----------------------------------------------------------------------------
+server:
+  listenAddress: "0.0.0.0"
+  listenPort: 8080
+  gracefulShutdownTimeout: 30s
+  readTimeout: 30s
+  writeTimeout: 30s
+  idleTimeout: 30s
+  compressionLevel: 4
+  basePath: ""
+  setBasePathFromXForwardedPrefix: true
+  stripPrefix: true
+  tls:
+    enabled: false
+
